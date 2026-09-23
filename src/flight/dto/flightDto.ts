@@ -4,6 +4,11 @@ import { IsDate, IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
 @InputType()
 export class FlightDto {
+  @IsNumber()
+  @IsNotEmpty()
+  @Field(() => Int)
+  flightNumber!: number;
+
   @IsString()
   @IsNotEmpty()
   @Field()

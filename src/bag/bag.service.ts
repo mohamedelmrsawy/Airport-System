@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Bag } from './entity/bagEntity';
+import { Bag } from './entities/bag.Entity';
 import { Repository } from 'typeorm';
 import { UpdateBagtDto } from './Dto/updateBagDto';
 import { PassengerService } from '../passenger/passenger.service';
@@ -8,68 +12,70 @@ import { PassengerService } from '../passenger/passenger.service';
 @Injectable()
 export class BagService {
   constructor(
-    @InjectRepository(Bag) private readonly bagReposatory: Repository<Bag>,
+    @InjectRepository(Bag) private readonly bagRepository: Repository<Bag>,
     private readonly passengerService: PassengerService,
   ) {}
 
   async getAllBag() {
-    return await this.bagReposatory.find();
+    return await this.bagRepository.find();
   }
 
   async getBag(Id: number) {
-    return await this.bagReposatory.findOne({ where: { Id } });
+    return await this.bagRepository.findOne({ where: { Id } });
   }
 
   async updateBag(Id: number, updateBagtDto: UpdateBagtDto) {
-    const bagExists = await this.bagReposatory.findBy({ Id });
+    const bagExists = await this.bagRepository.findOne({ where: { Id } });
 
-    if (bagExists) {
-      throw new Error('Bag already exists');
+    if (!bagExists) {
+      throw new Error('Bag not exists');
     }
 
     if (!updateBagtDto) {
-      throw new Error('Missing required fields');
+      console.log('not bag');
+      throw BadRequestException;
     }
-    const updateBag = await this.bagReposatory.update(Id, updateBagtDto);
-    return updateBag;
+    await this.bagRepository.update(Id, updateBagtDto);
+    return bagExists;
   }
 
   async createBag(
     Id: number,
-    updateBagtDto: UpdateBagtDto,
     passengerId: number,
+    updateBagtDto: UpdateBagtDto,
   ) {
     const passenger =
       await this.passengerService.findPassengerById(passengerId);
 
     if (!passenger) {
-      throw new Error('Passenger not found');
+      throw NotFoundException;
     }
 
-    const bagExists = await this.bagReposatory.findOne({ where: { Id } });
+    const bagExists = await this.bagRepository.findOne({ where: { Id } });
 
     if (bagExists) {
       throw new Error('Bag already exists');
     }
     if (!updateBagtDto) {
-      throw new Error('Missing required fields');
+      console.log('baaaaaag');
+      throw BadRequestException;
     }
 
     const newBag = new Bag();
     newBag.color = updateBagtDto.color;
     newBag.baggageTag = updateBagtDto.baggageTag;
     newBag.weight = updateBagtDto.weight;
-    newBag.stuts = updateBagtDto.stuts;
+    newBag.status = updateBagtDto.status;
     newBag.passenger = passenger;
-    return await this.bagReposatory.save(newBag);
+    return await this.bagRepository.save(newBag);
   }
 
   async removeAirport(Id: number) {
-    const bagExists = await this.bagReposatory.findBy({ Id });
+    const bagExists = await this.bagRepository.findOne({ where: { Id } });
 
     if (!bagExists) {
-      throw new Error('Bag not exists');
+      throw NotFoundException;
     }
-    return await this.bagReposatory.remove(bagExists);
+    return await this.bagRepository.remove(bagExists);
   }
 }

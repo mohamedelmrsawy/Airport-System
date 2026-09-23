@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AirportService } from './airport.service';
-import { Airport } from './entity/airportEntity';
+import { Airport } from './entities/airport.Entity';
 import { CreateAirportDto } from './Dto/createAirportDto';
 import { UpdateAirportDto } from './Dto/updateAirportDto';
 

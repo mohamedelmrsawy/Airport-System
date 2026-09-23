@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Passenger } from './entity/passengerEntity';
+import { Passenger } from './entities/passenger.Entity';
 import { Repository } from 'typeorm';
 import { PassengerDto } from './Dto/passengerDto';
 
@@ -11,7 +11,7 @@ export class PassengerService {
     private readonly passengerRepository: Repository<Passenger>,
   ) {}
 
-  async RegisterPassenger(passengerDto: PassengerDto) {
+  async registerPassenger(passengerDto: PassengerDto) {
     const passengerExists = await this.passengerRepository.findOne({
       where: {
         Name: passengerDto.Name,
@@ -25,11 +25,12 @@ export class PassengerService {
     }
 
     if (!passengerDto) {
-      throw new Error('Missing required fields');
+      throw new BadRequestException();
     }
 
     const passenger = new Passenger();
     passenger.Name = passengerDto.Name;
+    passenger.email = passengerDto.email;
     passenger.passportNumber = passengerDto.passportNumber;
     passenger.nationality = passengerDto.Nationality;
     return await this.passengerRepository.save(passenger);
@@ -41,5 +42,13 @@ export class PassengerService {
       relations: { books: true, bags: true },
     });
     return passenger;
+  }
+
+  async getAllPassenger() {
+    const passengers = await this.passengerRepository
+      .createQueryBuilder('passenger')
+      .getMany();
+
+    return passengers;
   }
 }

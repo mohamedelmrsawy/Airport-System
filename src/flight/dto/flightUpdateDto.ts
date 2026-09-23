@@ -4,6 +4,11 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
 export class FlightUpdateDto {
+  @IsNumber()
+  @IsNotEmpty()
+  @Field(() => Int)
+  flightNumber!: number;
+
   @IsString()
   @IsNotEmpty()
   @Field()

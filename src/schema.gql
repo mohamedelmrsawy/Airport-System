@@ -6,18 +6,21 @@ type Airport {
   Id: Int!
   Name: String!
   Country: String!
-  flight: [Flight!]!
+  departureAirport: [Flight!]!
+  destinationAirport: [Flight!]!
 }
 
 type Stuff {
   EmployeeId: Int!
   Name: String!
+  flightId: Int!
   Role: StuffEnum!
   AssignedFlight: String!
   flight: Flight!
 }
 
 enum StuffEnum {
+  ADMIN
   PILOT
   CREW
   SECURITY
@@ -29,7 +32,7 @@ type Bag {
   color: String!
   baggageTag: String!
   weight: Int!
-  stuts: BagStatus!
+  status: BagStatus!
   passenger: Passenger!
 }
 
@@ -43,20 +46,39 @@ enum BagStatus {
 type Passenger {
   Id: Int!
   Name: String!
+  email: String!
   passportNumber: String!
   nationality: String!
   bags: [Bag!]!
   books: [Book!]!
 }
 
+type Seat {
+  Id: Int!
+  seatNumbber: String!
+  Status: SeatStatus!
+  flightId: Flight!
+}
+
+enum SeatStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
 type Book {
+  Id: Int!
   SeatNumber: String!
+  flightId: Int!
+  passengerId: Int!
+  seatId: Int!
   passenger: Passenger!
   flight: Flight!
+  seat: Seat!
 }
 
 type Flight {
-  Number: Int!
+  Id: Int!
+  flightNumber: Int!
   DepartureAirport: String!
   DestinationAirport: String!
   DepartureTime: DateTime!
@@ -64,9 +86,11 @@ type Flight {
   Airline: String!
   AvailableSeats: Int!
   Status: FlightStatus!
-  airport: Airport!
+  departureAirport: Airport!
+  destinationAirport: Airport!
   stuff: [Stuff!]!
   books: [Book!]!
+  seats: [Seat!]!
 }
 
 """
@@ -78,39 +102,63 @@ enum FlightStatus {
   ONTIME
   DELAYED
   CANCELED
+  LEAVE
 }
 
 type Query {
-  getAllFlight: [Flight!]!
-  getFlight(id: Float!): Flight!
   getAllStuffs: [Stuff!]!
   getStuff(id: Float!): Stuff!
+  getAllFlight(flightIds: [Float!], filter: FlightFilter, page: Float! = 1, take: Float! = 10): [Flight!]!
+  getFlight(id: Float!): Flight!
   getAllAirport: [Airport!]!
   getAirport(Id: Float!): Airport!
   getPassenger(id: Float!): Passenger!
+  getSeat(Id: Float!): Seat!
+  GetAllSeat: [Seat!]!
   getBag(Id: Float!): Bag!
   getAllBag: [Bag!]!
 }
 
+input FlightFilter {
+  DepartureTime: DateTime!
+  DestinationAirport: String!
+  Airline: String!
+}
+
 type Mutation {
-  addFlight(flightDto: FlightDto!, id: Float!, airportId: Float!): Flight!
-  updateFlight(id: Float!, flightUpdateDto: FlightUpdateDto!): Flight!
-  removeFlight(id: Float!): Flight!
   createStuff(id: Float!, StuffDto: StuffDto!, flightId: Float!): Stuff!
   updateStuff(id: Float!, StuffDto: StuffDto!): Stuff!
   removeStuff(id: Float!): Stuff!
-  login(stuffJwt: StuffJwtType!): Stuff!
+  login(stuffJwt: jwtTypeStaff!): String!
+  addFlight(flightDto: FlightDto!, id: Float!, airportId: Float!): Flight!
+  updateFlight(id: Float!, flightUpdateDto: FlightUpdateDto!): Flight!
+  removeFlight(id: Float!): Flight!
   createAirport(Id: Float!, createAirportDto: CreateAirportDto!): Airport!
   updateAirport(Id: Float!, createAirportDto: UpdateAirportDto!): Airport!
   removeAirport(Id: Float!): Airport!
   addPassenger(passengerDto: PassengerDto!): Passenger!
-  addBooking(seatNumber: String!, passengerId: Float!, flightId: Float!): Book!
+  addBooking(creatbookingdto: CreateBookingDto!): Book!
+  addSeat(Id: Float!, seatDto: SeatDto!, flightId: Float!): Seat!
+  updateSeat(Id: Float!, seatDto: SeatDto!): Seat!
+  removeSeat(Id: Float!): Seat!
   createBag(Id: Float!, passengerId: Float!, updateBagtDto: UpdateBagtDto!): Bag!
   updateBag(Id: Float!, updateBagtDto: UpdateBagtDto!): Bag!
   removeBag(Id: Float!): Bag!
 }
 
+input StuffDto {
+  Name: String!
+  Role: StuffEnum!
+  AssignedFlight: String
+}
+
+input jwtTypeStaff {
+  Name: String!
+  Role: String!
+}
+
 input FlightDto {
+  flightNumber: Int!
   DepartureAirport: String!
   DestinationAirport: String!
   DepartureTime: DateTime!
@@ -121,6 +169,7 @@ input FlightDto {
 }
 
 input FlightUpdateDto {
+  flightNumber: Int!
   DepartureAirport: String!
   DestinationAirport: String!
   DepartureTime: DateTime!
@@ -128,17 +177,6 @@ input FlightUpdateDto {
   Airline: String!
   AvailableSeats: Int!
   Status: FlightStatus!
-}
-
-input StuffDto {
-  Name: String!
-  Role: StuffEnum!
-  AssignedFlight: String!
-}
-
-input StuffJwtType {
-  Name: String!
-  role: String!
 }
 
 input CreateAirportDto {
@@ -153,15 +191,28 @@ input UpdateAirportDto {
 
 input PassengerDto {
   Name: String!
+  email: String!
   passportNumber: String!
   Nationality: String!
+}
+
+input CreateBookingDto {
+  seatNumber: String!
+  passengerId: Int!
+  flightId: Int!
+  seatId: Int!
+}
+
+input SeatDto {
+  seatNumbber: String!
+  Status: SeatStatus!
 }
 
 input UpdateBagtDto {
   color: String!
   baggageTag: String!
   weight: Int!
-  stuts: BagStatus!
+  status: BagStatus!
 }
 
 type Subscription {

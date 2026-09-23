@@ -4,7 +4,7 @@ import { AuthResolver } from './auth.resolver';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Stuff } from '../stuff/entity/stuffEntity';
+import { Stuff } from '../staff/entities/staff.Entity';
 import { MaliModule } from '../mailer/mailer.module';
 
 @Module({

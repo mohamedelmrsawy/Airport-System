@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { StuffJwtType } from '../types/stuffJwtType';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { jwtTypeStaff } from '../types/jwtTypeStaff';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Stuff } from '../stuff/entity/stuffEntity';
+import { Stuff } from '../staff/entities/staff.Entity';
 import { Repository } from 'typeorm';
-import { StuffEnum } from '../stuff/stuffEnum/stuffEnum';
+import { StuffEnum } from '../staff/staffEnum/staffEnum';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -16,35 +20,29 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  async stuffLogin(stuffJwt: StuffJwtType) {
-    if (!stuffJwt || !stuffJwt.Name || !stuffJwt.role) {
-      throw new Error('Invalid JWT payload');
+  async stuffLogin(stuffJwt: jwtTypeStaff) {
+    if (!stuffJwt || !stuffJwt.Name || !stuffJwt.Role) {
+      console.log('Invalid JWT payload');
+      throw new BadRequestException();
     }
 
-    const { Name, role } = stuffJwt;
+    const { Name, Role } = stuffJwt;
 
-    const roleEnum = role as StuffEnum;
+    const roleEnum = Role as StuffEnum;
 
     const stuff = await this.stuffRepository.findOne({
-      where: { Name, Role: roleEnum },
+      where: { Name: Name, Role: roleEnum },
     });
 
     if (!stuff) {
-      throw new Error('Stuff not found');
+      console.log('WTF');
+      throw new NotFoundException();
     }
 
     const payload = { Name: stuff.Name, Role: stuff.Role };
 
-    try {
-      await this.mailerService.sendMail({
-        from: 'mohamed@gmail.com',
-        to: 'ali@gmail.com',
-        subject: 'login success',
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    const Bearer = await this.jwtService.signAsync(payload);
 
-    return await this.jwtService.signAsync(payload);
+    return Bearer;
   }
 }

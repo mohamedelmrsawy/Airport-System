@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BagService } from './bag.service';
 import { BagResolver } from './bag.resolver';
-import { Bag } from './entity/bagEntity';
+import { Bag } from './entities/bag.Entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassengerModule } from '../passenger/passenger.module';
 

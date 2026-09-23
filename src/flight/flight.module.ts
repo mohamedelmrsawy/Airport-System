@@ -1,9 +1,9 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { FlightService } from './flight.service';
 import { FlightResolver } from './flight.resolver';
-import { Flight } from './entity/flightEntity';
+import { Flight } from './entities/flight.Entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StuffModule } from '../stuff/stuff.module';
+import { StuffModule } from '../staff/staff.module';
 import { AuthModule } from '../auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AirportModule } from '../airport/airport.module';

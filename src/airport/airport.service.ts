@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Airport } from './entity/airportEntity';
+import { Airport } from './entities/airport.Entity';
 import { Repository } from 'typeorm';
 import { UpdateAirportDto } from './Dto/updateAirportDto';
 import { CreateAirportDto } from './Dto/createAirportDto';
@@ -21,20 +25,20 @@ export class AirportService {
   }
 
   async updateAirport(Id: number, updateAirportDto: UpdateAirportDto) {
-    const airportExists = await this.airportReposatory.findBy({ Id });
+    const airport = await this.airportReposatory.findOne({
+      where: { Id },
+    });
 
-    if (airportExists) {
-      throw new Error('Airport already exists');
+    if (!airport) {
+      //throw new Error('Airport already exists');
+      throw NotFoundException;
     }
 
     if (!updateAirportDto) {
-      throw new Error('Missing required fields');
+      throw BadRequestException;
     }
-    const updateAirport = await this.airportReposatory.update(
-      Id,
-      updateAirportDto,
-    );
-    return updateAirport;
+    await this.airportReposatory.update(Id, updateAirportDto);
+    return airport;
   }
 
   async createAirport(Id: number, createAirportDto: CreateAirportDto) {
@@ -47,7 +51,7 @@ export class AirportService {
     }
 
     if (!createAirportDto) {
-      throw new Error('Missing required fields');
+      throw BadRequestException;
     }
 
     const newAirport = new Airport();
@@ -57,10 +61,12 @@ export class AirportService {
   }
 
   async removeAirport(Id: number) {
-    const airportExists = await this.airportReposatory.findBy({ Id });
+    const airportExists = await this.airportReposatory.findOne({
+      where: { Id },
+    });
 
     if (!airportExists) {
-      throw new Error('Passenger not exists');
+      throw new Error('Airport not exists');
     }
     return await this.airportReposatory.remove(airportExists);
   }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AirportService } from './airport.service';
 import { AirportResolver } from './airport.resolver';
-import { Airport } from './entity/airportEntity';
+import { Airport } from './entities/airport.Entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({

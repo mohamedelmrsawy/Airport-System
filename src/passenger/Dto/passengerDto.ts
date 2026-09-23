@@ -8,6 +8,10 @@ export class PassengerDto {
   @Field()
   Name!: string;
 
+  @IsString()
+  @Field()
+  email!: string;
+
   @IsNotEmpty()
   @IsString()
   @Field()

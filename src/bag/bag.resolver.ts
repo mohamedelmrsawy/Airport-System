@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { BagService } from './bag.service';
-import { Bag } from './entity/bagEntity';
+import { Bag } from './entities/bag.Entity';
 import { UpdateBagtDto } from './Dto/updateBagDto';
 
 @Resolver()
@@ -23,7 +23,7 @@ export class BagResolver {
     @Args('passengerId') passengerId: number,
     @Args('updateBagtDto') updateBagtDto: UpdateBagtDto,
   ) {
-    return await this.bagService.createBag(Id, updateBagtDto, passengerId);
+    return await this.bagService.createBag(Id, passengerId, updateBagtDto);
   }
 
   @Mutation(() => Bag)
